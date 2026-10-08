@@ -1,0 +1,473 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  CREATOR
+  MODERATOR
+  ADMIN
+}
+
+enum CreatorStatus {
+  NONE
+  RISING
+  PRO
+  PARTNER
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  CAROUSEL
+  AUDIO
+}
+
+enum ReportStatus {
+  PENDING
+  INVESTIGATING
+  RESOLVED
+  DISMISSED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+// 1. Users
+model User {
+  id              String         @id @default(uuid())
+  email           String         @unique
+  username        String         @unique
+  passwordHash    String
+  displayName     String
+  role            Role           @default(USER)
+  isVerified      Boolean        @default(false)
+  isCreator       Boolean        @default(false)
+  creatorStatus   CreatorStatus  @default(NONE)
+  interests       String[]       @default([])
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // Relationships
+  profile         Profile?
+  posts           Post[]
+  comments        Comment[]
+  likes           Like[]
+  saves           Save[]
+  reels           Reel[]
+  stories         Story[]
+  sentMessages    Message[]      @relation("SentMessages")
+  notifications   Notification[] @relation("UserNotifications")
+  createdCommunities Community[] @relation("CommunityCreator")
+  communityMemberships CommunityMember[]
+  challengeEntries ChallengeEntry[]
+  createdChallenges Challenge[]  @relation("ChallengeCreator")
+  createdEvents   Event[]        @relation("EventCreator")
+  eventAttendances EventParticipant[]
+  products        Product[]      @relation("CreatorProducts")
+  orders          Order[]        @relation("BuyerOrders")
+  subscriptions   Subscription[] @relation("UserSubscriptions")
+  reportsFiled    Report[]       @relation("Reporter")
+  userAchievements UserAchievement[]
+
+  // Social Graph
+  followers       Follow[]       @relation("Followers")
+  following       Follow[]       @relation("Following")
+
+  @@index([email])
+  @@index([username])
+}
+
+// 2. Profiles
+model Profile {
+  id              String         @id @default(uuid())
+  userId          String         @unique
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  avatarUrl       String?
+  coverImageUrl   String?
+  bio             String?        @db.VarChar(500)
+  location        String?
+  website         String?
+  themePreference String         @default("dark")
+  socialLinks     Json?          // { twitter, instagram, youtube, github }
+  updatedAt       DateTime       @updatedAt
+}
+
+// 3. Social Graph (Followers & Following)
+model Follow {
+  id              String         @id @default(uuid())
+  followerId      String
+  follower        User           @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId     String
+  following       User           @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+// 4. Posts
+model Post {
+  id              String         @id @default(uuid())
+  authorId        String
+  author          User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  communityId     String?
+  community       Community?     @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  content         String         @db.Text
+  mediaUrls       String[]       @default([])
+  mediaType       MediaType      @default(IMAGE)
+  hashtags        String[]       @default([])
+  likesCount      Int            @default(0)
+  commentsCount   Int            @default(0)
+  sharesCount     Int            @default(0)
+  isPinned        Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  comments        Comment[]
+  likes           Like[]
+  saves           Save[]
+  reports         Report[]
+
+  @@index([authorId])
+  @@index([communityId])
+  @@index([createdAt])
+}
+
+// 5. Comments
+model Comment {
+  id              String         @id @default(uuid())
+  postId          String
+  post            Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId        String
+  author          User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content         String         @db.Text
+  parentId        String?
+  parent          Comment?       @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies         Comment[]      @relation("CommentReplies")
+  likesCount      Int            @default(0)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+// 6. Likes
+model Like {
+  id              String         @id @default(uuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId          String?
+  post            Post?          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reelId          String?
+  reel            Reel?          @relation(fields: [reelId], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+
+  @@unique([userId, postId])
+  @@unique([userId, reelId])
+  @@index([userId])
+}
+
+// 7. Saves / Bookmarks
+model Save {
+  id              String         @id @default(uuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId          String?
+  post            Post?          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reelId          String?
+  reel            Reel?          @relation(fields: [reelId], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+
+  @@unique([userId, postId])
+  @@unique([userId, reelId])
+  @@index([userId])
+}
+
+// 8. Reels (Short-form Video)
+model Reel {
+  id              String         @id @default(uuid())
+  authorId        String
+  author          User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  videoUrl        String
+  thumbnailUrl    String?
+  caption         String?        @db.VarChar(500)
+  musicTitle      String?
+  musicArtist     String?
+  viewsCount      Int            @default(0)
+  likesCount      Int            @default(0)
+  commentsCount   Int            @default(0)
+  sharesCount     Int            @default(0)
+  duration        Float          @default(0.0) // seconds
+  hashtags        String[]       @default([])
+  createdAt       DateTime       @default(now())
+
+  likes           Like[]
+  saves           Save[]
+
+  @@index([authorId])
+}
+
+// 9. Stories (Temporary Content, 24h)
+model Story {
+  id              String         @id @default(uuid())
+  authorId        String
+  author          User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  mediaUrl        String
+  mediaType       MediaType      @default(IMAGE)
+  caption         String?
+  expiresAt       DateTime
+  isHighlight     Boolean        @default(false)
+  highlightTitle  String?
+  createdAt       DateTime       @default(now())
+
+  @@index([authorId])
+  @@index([expiresAt])
+}
+
+// 10. Messages (Chat)
+model Message {
+  id              String         @id @default(uuid())
+  senderId        String
+  sender          User           @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  conversationId  String
+  content         String         @db.Text
+  mediaUrl        String?
+  isRead          Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+
+  @@index([conversationId])
+  @@index([senderId])
+}
+
+// 11. Notifications
+model Notification {
+  id              String         @id @default(uuid())
+  userId          String
+  user            User           @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  actorId         String?
+  type            String         // LIKE, COMMENT, FOLLOW, MENTION, CHALLENGE, EVENT
+  title           String
+  body            String
+  entityId        String?
+  isRead          Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+// 12. Communities (VYBES)
+model Community {
+  id              String         @id @default(uuid())
+  name            String         @unique
+  slug            String         @unique
+  description     String         @db.VarChar(1000)
+  category        String         // Photography, Video Editing, AI, Coding, etc.
+  iconEmoji       String         @default("✨")
+  coverImageUrl   String?
+  creatorId       String
+  creator         User           @relation("CommunityCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  isPrivate       Boolean        @default(false)
+  membersCount    Int            @default(1)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  members         CommunityMember[]
+  posts           Post[]
+  challenges      Challenge[]
+  events          Event[]
+
+  @@index([category])
+  @@index([slug])
+}
+
+// 13. CommunityMembers
+model CommunityMember {
+  id              String         @id @default(uuid())
+  communityId     String
+  community       Community      @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role            String         @default("MEMBER") // ADMIN, MODERATOR, MEMBER
+  joinedAt        DateTime       @default(now())
+
+  @@unique([communityId, userId])
+  @@index([communityId])
+  @@index([userId])
+}
+
+// 14. Challenges
+model Challenge {
+  id              String         @id @default(uuid())
+  title           String
+  description     String         @db.Text
+  bannerUrl       String?
+  creatorId       String
+  creator         User           @relation("ChallengeCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  communityId     String?
+  community       Community?     @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  startDate       DateTime
+  endDate         DateTime
+  rules           String?        @db.Text
+  rewardBadge     String?
+  createdAt       DateTime       @default(now())
+
+  entries         ChallengeEntry[]
+
+  @@index([communityId])
+}
+
+// 15. ChallengeEntries
+model ChallengeEntry {
+  id              String         @id @default(uuid())
+  challengeId     String
+  challenge       Challenge      @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaUrl        String
+  caption         String?
+  votesCount      Int            @default(0)
+  createdAt       DateTime       @default(now())
+
+  @@unique([challengeId, userId])
+  @@index([challengeId])
+}
+
+// 16. Events
+model Event {
+  id              String         @id @default(uuid())
+  title           String
+  description     String         @db.Text
+  coverImageUrl   String?
+  isOnline        Boolean        @default(true)
+  location        String?
+  eventDate       DateTime
+  creatorId       String
+  creator         User           @relation("EventCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  communityId     String?
+  community       Community?     @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  maxAttendees    Int?
+  createdAt       DateTime       @default(now())
+
+  participants    EventParticipant[]
+
+  @@index([creatorId])
+  @@index([communityId])
+}
+
+// 17. EventParticipants
+model EventParticipant {
+  id              String         @id @default(uuid())
+  eventId         String
+  event           Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  registeredAt    DateTime       @default(now())
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+}
+
+// 18. Products (VYBE Marketplace)
+model Product {
+  id              String         @id @default(uuid())
+  title           String
+  description     String         @db.Text
+  category        String         // Presets, LUTs, Templates, Wallpapers, Guides
+  priceInCents    Int
+  currency        String         @default("USD")
+  previewImages   String[]       @default([])
+  downloadUrl     String
+  creatorId       String
+  creator         User           @relation("CreatorProducts", fields: [creatorId], references: [id], onDelete: Cascade)
+  salesCount      Int            @default(0)
+  rating          Float          @default(5.0)
+  createdAt       DateTime       @default(now())
+
+  orders          Order[]
+
+  @@index([creatorId])
+  @@index([category])
+}
+
+// 19. Orders
+model Order {
+  id              String         @id @default(uuid())
+  productId       String
+  product         Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  buyerId         String
+  buyer           User           @relation("BuyerOrders", fields: [buyerId], references: [id], onDelete: Cascade)
+  amountInCents   Int
+  status          OrderStatus    @default(PENDING)
+  paymentIntentId String?
+  createdAt       DateTime       @default(now())
+
+  @@index([buyerId])
+}
+
+// 20. Subscriptions (Creator Monetization)
+model Subscription {
+  id              String         @id @default(uuid())
+  subscriberId    String
+  subscriber      User           @relation("UserSubscriptions", fields: [subscriberId], references: [id], onDelete: Cascade)
+  creatorId       String
+  tierName        String
+  priceMonthly    Int
+  isActive        Boolean        @default(true)
+  expiresAt       DateTime
+  createdAt       DateTime       @default(now())
+
+  @@index([subscriberId])
+  @@index([creatorId])
+}
+
+// 21. Reports (Safety & Moderation)
+model Report {
+  id              String         @id @default(uuid())
+  reporterId      String
+  reporter        User           @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  postId          String?
+  post            Post?          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reason          String
+  status          ReportStatus   @default(PENDING)
+  moderatorNotes  String?
+  createdAt       DateTime       @default(now())
+
+  @@index([status])
+}
+
+// 22. Achievements & Badges
+model Achievement {
+  id              String         @id @default(uuid())
+  title           String
+  description     String
+  icon            String
+  points          Int            @default(10)
+  createdAt       DateTime       @default(now())
+
+  userAchievements UserAchievement[]
+}
+
+// 23. UserAchievements
+model UserAchievement {
+  id              String         @id @default(uuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId   String
+  achievement     Achievement    @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  unlockedAt      DateTime       @default(now())
+
+  @@unique([userId, achievementId])
+}
