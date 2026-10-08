@@ -381,11 +381,15 @@ export function PostCard({ post, onPostUpdated, onPostDeleted }: PostCardProps) 
                 <Link href={authorProfileHref} className="text-sm font-bold text-white hover:text-violet-300 transition-colors">
                   {post.author.displayName}
                 </Link>
-                {post.author.creatorStatus && post.author.creatorStatus !== "none" && (
+                {(post.author.isOwner || post.author.role === "owner" || post.author.creatorStatus === "owner") ? (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1 shadow-sm">
+                    👑 Owner
+                  </span>
+                ) : post.author.creatorStatus && post.author.creatorStatus !== "none" ? (
                   <Badge variant="primary" size="sm">
                     {post.author.creatorStatus.toUpperCase()}
                   </Badge>
-                )}
+                ) : null}
                 {post.author.verified && <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />}
               </div>
 

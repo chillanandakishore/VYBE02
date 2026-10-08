@@ -168,12 +168,16 @@ export default function CreatorPublicProfilePage() {
                   <h1 className="text-xl sm:text-3xl font-black text-white">
                     {creator.displayName}
                   </h1>
-                  {creator.isCreator && (
+                  {(creator.isOwner || creator.role === "owner" || creator.creatorStatus === "owner") ? (
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/50 flex items-center gap-1 shadow-sm shadow-amber-500/20">
+                      👑 Platform Owner
+                    </span>
+                  ) : creator.isCreator ? (
                     <Badge variant="primary" size="sm">
                       <Sparkles className="w-3 h-3 mr-1 text-violet-400" />
                       {creator.creatorStatus?.toUpperCase() || "CREATOR"}
                     </Badge>
-                  )}
+                  ) : null}
                   {creator.verified && <CheckCircle2 className="w-4 h-4 text-cyan-400" />}
                 </div>
                 <p className="text-xs text-neutral-400">@{creator.username}</p>

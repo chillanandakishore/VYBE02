@@ -15,11 +15,15 @@ export type InterestCategory =
   | "Movies"
   | "Food";
 
+export type UserRole = "owner" | "creator" | "user";
+
 export interface User {
   id: string;
   username: string;
   displayName: string;
   email: string;
+  role?: UserRole;
+  isOwner?: boolean;
   avatarUrl?: string;
   coverImageUrl?: string;
   bio?: string;
@@ -30,7 +34,7 @@ export interface User {
   followingCount: number;
   postsCount: number;
   isCreator: boolean;
-  creatorStatus?: "none" | "rising" | "pro" | "partner";
+  creatorStatus?: "none" | "rising" | "pro" | "partner" | "owner";
   verified: boolean;
   isFollowing?: boolean;
   createdAt: string;
@@ -76,8 +80,10 @@ export interface Post {
     username: string;
     displayName: string;
     avatarUrl?: string;
+    role?: UserRole;
+    isOwner?: boolean;
     isCreator: boolean;
-    creatorStatus?: "none" | "rising" | "pro" | "partner";
+    creatorStatus?: "none" | "rising" | "pro" | "partner" | "owner";
     verified?: boolean;
     isFollowing?: boolean;
   };

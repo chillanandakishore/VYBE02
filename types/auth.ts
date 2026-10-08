@@ -1,10 +1,11 @@
-import { InterestCategory, User } from "./index";
+import { InterestCategory, User, UserRole } from "./index";
 
 export interface RegisterPayload {
   username: string;
   displayName: string;
   email: string;
   password: string;
+  role?: UserRole;
   interests: InterestCategory[];
 }
 

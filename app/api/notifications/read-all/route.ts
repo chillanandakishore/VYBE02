@@ -6,7 +6,10 @@ export async function POST(req: NextRequest) {
   try {
     const token = req.cookies.get("vybe_token")?.value;
     const decoded = token ? verifyToken(token) : null;
-    const userId = decoded?.id || "usr_creator_01";
+    if (!decoded?.id) {
+      return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+    }
+    const userId = decoded.id;
 
     await dbNotifications.markAllNotificationsRead(userId);
 

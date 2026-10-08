@@ -410,7 +410,7 @@ export default function MessagesPage() {
                 </div>
 
                 {messages.map((m) => {
-                  const isMe = m.senderId === user?.id || m.senderId === "me" || m.senderId === "usr_creator_01";
+                  const isMe = m.senderId === user?.id || m.senderId === "me";
 
                   return (
                     <div

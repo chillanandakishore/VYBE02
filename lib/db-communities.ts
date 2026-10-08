@@ -21,36 +21,7 @@ const initialCommunities: CommunityItem[] = [
       "No direct client advertising without moderator approval.",
     ],
     tags: ["Color Grading", "DaVinci", "Premiere", "After Effects", "Sound Design"],
-    discussions: [
-      {
-        id: "disc_1",
-        communityId: "vybe_video_editing",
-        author: {
-          id: "usr_creator_01",
-          username: "alex_rivers",
-          displayName: "Alex Rivers 🎬",
-          avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-        },
-        title: "CST vs ACES in DaVinci Resolve 19: Which provides cleaner highlight rolloff?",
-        content: "After testing 100+ footage samples from ARRI Alexa 35 and Sony FX3, Color Space Transform with DaVinci Wide Gamut consistently produces smoother skin tones.",
-        repliesCount: 42,
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 18).toISOString(),
-      },
-      {
-        id: "disc_2",
-        communityId: "vybe_video_editing",
-        author: {
-          id: "usr_photog_03",
-          username: "kenji_shoots",
-          displayName: "Kenji Sato",
-          avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-        },
-        title: "Best shutter angle for handheld anamorphic night scenes?",
-        content: "We experimented with 172.8 deg vs 180 deg in Tokyo rain streets to eliminate LED frequency flicker.",
-        repliesCount: 19,
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString(),
-      },
-    ],
+    discussions: [],
     resources: [
       {
         id: "res_1",
@@ -89,22 +60,7 @@ const initialCommunities: CommunityItem[] = [
       "Keep self-promotion confined to community showcase threads.",
     ],
     tags: ["Street Photography", "Leica", "Night Shoots", "35mm Film", "Portraiture"],
-    discussions: [
-      {
-        id: "disc_3",
-        communityId: "vybe_photography",
-        author: {
-          id: "usr_photog_03",
-          username: "kenji_shoots",
-          displayName: "Kenji Sato",
-          avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-        },
-        title: "Zone focusing at night: 28mm vs 35mm street perspectives",
-        content: "At f/4 with ISO 3200 in neon streets, zone focusing at 2.5 meters guarantees crisp snapshots of fleeting human moments.",
-        repliesCount: 34,
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
-      },
-    ],
+    discussions: [],
     resources: [
       {
         id: "res_3",
@@ -134,22 +90,7 @@ const initialCommunities: CommunityItem[] = [
       "Encourage respectful code reviews and architecture discussions.",
     ],
     tags: ["Next.js 16", "TypeScript", "React 19", "AI Agents", "Tailwind 4"],
-    discussions: [
-      {
-        id: "disc_4",
-        communityId: "vybe_coding",
-        author: {
-          id: "usr_coder_02",
-          username: "maya_dev",
-          displayName: "Maya Patel",
-          avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
-        },
-        title: "Turbopack optimization patterns for large Next.js 16 codebases",
-        content: "By modularizing in-memory DB instances and dynamic imports, page compilation stays under 500ms even with 50+ routes.",
-        repliesCount: 58,
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
-      },
-    ],
+    discussions: [],
     resources: [
       {
         id: "res_4",
@@ -184,10 +125,6 @@ const initialCommunities: CommunityItem[] = [
 ];
 
 initialCommunities.forEach((c) => communitiesStore.set(c.id, c));
-// Pre-seed membership
-communityMembersStore.add("usr_creator_01:vybe_video_editing");
-communityMembersStore.add("usr_creator_01:vybe_photography");
-communityMembersStore.add("usr_coder_02:vybe_coding");
 
 export const dbCommunities = {
   getCommunities: async (currentUserId?: string): Promise<CommunityItem[]> => {

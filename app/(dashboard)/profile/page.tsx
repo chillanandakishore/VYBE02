@@ -196,14 +196,18 @@ export default function ProfilePage() {
               <div className="mb-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-xl sm:text-3xl font-black text-white">
-                    {user?.displayName || "Creator"}
+                    {user?.displayName || "User"}
                   </h1>
-                  {user?.isCreator && (
+                  {(user?.isOwner || user?.role === "owner" || user?.creatorStatus === "owner") ? (
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/50 flex items-center gap-1 shadow-sm shadow-amber-500/20">
+                      👑 Platform Owner
+                    </span>
+                  ) : user?.isCreator ? (
                     <Badge variant="primary" size="sm">
                       <Sparkles className="w-3 h-3 mr-1 text-violet-400" />
                       {user?.creatorStatus?.toUpperCase() || "PRO CREATOR"}
                     </Badge>
-                  )}
+                  ) : null}
                   {user?.verified && <CheckCircle2 className="w-4 h-4 text-cyan-400" />}
                 </div>
                 <p className="text-xs text-neutral-400">@{user?.username || "handle"}</p>

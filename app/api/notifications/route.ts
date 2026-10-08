@@ -6,7 +6,10 @@ export async function GET(req: NextRequest) {
   try {
     const token = req.cookies.get("vybe_token")?.value;
     const decoded = token ? verifyToken(token) : null;
-    const userId = decoded?.id || "usr_creator_01"; // Fallback to demo creator if unauthenticated
+    if (!decoded?.id) {
+      return NextResponse.json({ success: true, notifications: [], unreadCount: 0 });
+    }
+    const userId = decoded.id;
 
     const data = await dbNotifications.getNotifications(userId);
 

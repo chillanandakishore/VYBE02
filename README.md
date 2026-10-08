@@ -69,16 +69,17 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 🔑 Demo Credentials (1-Click Login Available)
+## 👑 Clean Database & Account Roles
 
-On the login page, use the **1-Click Demo Mode** buttons or sign in with:
+The platform starts completely clean and ready for fresh account creation with dedicated role separation:
 
-| Account Type | Email / Username | Password | Profile |
-|---|---|---|---|
-| **Creator** | `creator@vybe.social` or `alex_rivers` | `vybe123` | Pro Filmmaker & Colorist |
-| **Engineer/Student** | `coder@vybe.social` or `maya_dev` | `vybe123` | AI & Fullstack Developer |
+| Role | Badges & Privileges | Registration Option |
+|---|---|---|
+| **Platform Owner** | `👑 OWNER`, Verified, Full Platform & Admin Authority | Select **Platform Owner** on Sign Up (or first registered user) |
+| **Creator** | `⚡ CREATOR`, Pro Creator Studio, Media Tools | Select **Creator** on Sign Up |
+| **Member** | Community Explorer, Interactions, Posts & Messaging | Select **Member** on Sign Up |
 
-You can also create a new account using the 2-step registration with custom interest tags.
+Create your accounts on `/signup` with custom handles, full names, and 15+ niche interest selections.
 
 ---
 

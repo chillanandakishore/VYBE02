@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { InterestSelector } from "./interest-selector";
-import { InterestCategory } from "@/types";
-import { User, Mail, Lock, Sparkles, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { InterestCategory, UserRole } from "@/types";
+import { User, Mail, Lock, Sparkles, ArrowRight, ArrowLeft, CheckCircle2, Crown, Zap, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
 
@@ -16,6 +16,7 @@ export function SignupForm() {
   const [step, setStep] = useState<1 | 2>(1);
 
   // Form State
+  const [role, setRole] = useState<UserRole>("owner");
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -94,6 +95,7 @@ export function SignupForm() {
       displayName: displayName.trim(),
       email: email.trim(),
       password,
+      role,
       interests: selectedInterests,
     });
   };
@@ -144,6 +146,57 @@ export function SignupForm() {
       <CardContent className="pt-2 flex flex-col gap-4">
         {step === 1 ? (
           <form onSubmit={handleNext} className="flex flex-col gap-3.5">
+            {/* Account Role Selector */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-neutral-300 flex items-center justify-between">
+                <span>Select Account Role</span>
+                <span className="text-[10px] text-neutral-500">Separates Owner & Users</span>
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRole("owner")}
+                  className={`p-2.5 rounded-xl border flex flex-col items-center text-center transition-all cursor-pointer ${
+                    role === "owner"
+                      ? "bg-amber-500/15 border-amber-500/80 shadow-[0_0_15px_rgba(245,158,11,0.25)] text-white"
+                      : "bg-neutral-900/60 border-neutral-800 text-neutral-400 hover:border-neutral-700"
+                  }`}
+                >
+                  <Crown className={`w-5 h-5 mb-1 ${role === "owner" ? "text-amber-400" : "text-neutral-400"}`} />
+                  <span className="text-xs font-bold">Platform Owner</span>
+                  <span className="text-[10px] text-neutral-400 mt-0.5">Admin & verified</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setRole("creator")}
+                  className={`p-2.5 rounded-xl border flex flex-col items-center text-center transition-all cursor-pointer ${
+                    role === "creator"
+                      ? "bg-violet-500/15 border-violet-500/80 shadow-[0_0_15px_rgba(139,92,246,0.25)] text-white"
+                      : "bg-neutral-900/60 border-neutral-800 text-neutral-400 hover:border-neutral-700"
+                  }`}
+                >
+                  <Zap className={`w-5 h-5 mb-1 ${role === "creator" ? "text-violet-400" : "text-neutral-400"}`} />
+                  <span className="text-xs font-bold">Creator</span>
+                  <span className="text-[10px] text-neutral-400 mt-0.5">Studio & tools</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setRole("user")}
+                  className={`p-2.5 rounded-xl border flex flex-col items-center text-center transition-all cursor-pointer ${
+                    role === "user"
+                      ? "bg-cyan-500/15 border-cyan-500/80 shadow-[0_0_15px_rgba(6,182,212,0.25)] text-white"
+                      : "bg-neutral-900/60 border-neutral-800 text-neutral-400 hover:border-neutral-700"
+                  }`}
+                >
+                  <User className={`w-5 h-5 mb-1 ${role === "user" ? "text-cyan-400" : "text-neutral-400"}`} />
+                  <span className="text-xs font-bold">Member</span>
+                  <span className="text-[10px] text-neutral-400 mt-0.5">Community</span>
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Input
                 label="Username"
@@ -224,9 +277,26 @@ export function SignupForm() {
                   {displayName ? displayName.charAt(0).toUpperCase() : "V"}
                 </div>
                 <div>
-                  <h5 className="text-xs font-bold text-white leading-tight">
-                    {displayName || "Your Name"}
-                  </h5>
+                  <div className="flex items-center gap-1.5">
+                    <h5 className="text-xs font-bold text-white leading-tight">
+                      {displayName || "Your Name"}
+                    </h5>
+                    {role === "owner" && (
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                        👑 Owner
+                      </span>
+                    )}
+                    {role === "creator" && (
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-violet-500/20 text-violet-300 border border-violet-500/40">
+                        ⚡ Creator
+                      </span>
+                    )}
+                    {role === "user" && (
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                        👤 Member
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[11px] text-neutral-400">
                     @{username || "username"} • {selectedInterests.length} Interests
                   </p>

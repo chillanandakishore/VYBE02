@@ -10,7 +10,7 @@ import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
 
 export function LoginForm() {
-  const { login, quickDemoLogin, isLoading } = useAuth();
+  const { login, isLoading } = useAuth();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ identifier?: string; password?: string }>({});
@@ -61,37 +61,18 @@ export function LoginForm() {
       </CardHeader>
 
       <CardContent className="pt-4 flex flex-col gap-5">
-        {/* Quick Demo Logins Banner */}
-        <div className="p-3.5 rounded-xl bg-violet-950/30 border border-violet-800/40 flex flex-col gap-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-violet-300 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-violet-400" /> Instant Demo Mode (1-Click)
-            </span>
-            <span className="text-[10px] bg-violet-500/20 text-violet-300 px-2 py-0.5 rounded-md font-mono">
-              Ready
-            </span>
+        {/* Fresh Platform Status Banner */}
+        <div className="p-3 rounded-xl bg-violet-950/30 border border-violet-800/40 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2 text-violet-300">
+            <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+            <span>Fresh Database: Register your Owner or Member account</span>
           </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              disabled={isLoading}
-              onClick={() => quickDemoLogin("creator")}
-              className="flex items-center justify-center gap-1.5 p-2 rounded-lg bg-neutral-800/90 hover:bg-neutral-700/90 border border-neutral-700/70 text-xs font-medium text-white transition-all duration-200 cursor-pointer disabled:opacity-50"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>Alex (Creator)</span>
-            </button>
-            <button
-              type="button"
-              disabled={isLoading}
-              onClick={() => quickDemoLogin("coder")}
-              className="flex items-center justify-center gap-1.5 p-2 rounded-lg bg-neutral-800/90 hover:bg-neutral-700/90 border border-neutral-700/70 text-xs font-medium text-white transition-all duration-200 cursor-pointer disabled:opacity-50"
-            >
-              <Code2 className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Maya (Dev)</span>
-            </button>
-          </div>
+          <Link
+            href="/signup"
+            className="text-[11px] font-bold text-violet-400 hover:text-violet-300 underline underline-offset-2 shrink-0 ml-2"
+          >
+            Sign Up
+          </Link>
         </div>
 
         {/* Traditional credentials form */}

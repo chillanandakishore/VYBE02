@@ -18,7 +18,6 @@ import {
   Flame,
   CheckCircle2,
 } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
 import { TiltCard } from "@/components/3d/tilt-card";
 
 // Dynamic import with SSR disabled for optimal Three.js WebGL performance & zero hydration mismatch
@@ -28,7 +27,6 @@ const HeroScene3D = dynamic(
 );
 
 export function Hero() {
-  const { quickDemoLogin, isLoading } = useAuth();
 
   return (
     <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-32 min-h-[850px]">
@@ -85,14 +83,16 @@ export function Hero() {
               </Button>
             </Link>
 
-            <button
-              onClick={() => quickDemoLogin("creator")}
-              disabled={isLoading}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-violet-950/40 hover:bg-violet-900/60 text-violet-300 border border-violet-800/50 font-semibold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
-            >
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>Instant Demo</span>
-            </button>
+            <Link href="/explore" className="w-full sm:w-auto">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto font-semibold text-base border-violet-800/50 bg-violet-950/40 hover:bg-violet-900/60 text-violet-300"
+              >
+                <Sparkles className="w-4 h-4 text-amber-400 mr-2" />
+                <span>Explore Communities</span>
+              </Button>
+            </Link>
           </div>
 
           {/* Trust points */}

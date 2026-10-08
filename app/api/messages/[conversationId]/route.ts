@@ -33,7 +33,10 @@ export async function POST(
     const { conversationId } = await params;
     const token = req.cookies.get("vybe_token")?.value;
     const decoded = token ? verifyToken(token) : null;
-    const senderId = decoded?.id || "usr_creator_01";
+    if (!decoded?.id) {
+      return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+    }
+    const senderId = decoded.id;
 
     const body = await req.json();
     if (!body.text && !body.mediaUrl) {

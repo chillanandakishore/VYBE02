@@ -1,5 +1,6 @@
 import {
   User,
+  UserRole,
   InterestItem,
   Post,
   Comment,
@@ -174,251 +175,16 @@ const reportsStore: ReportRecord[] = [];
 // Helper to pre-hash demo passwords
 const DEMO_PASSWORD_HASH = bcrypt.hashSync("vybe123", 10);
 
-const defaultUsers: UserRecord[] = [
-  {
-    id: "usr_creator_01",
-    email: "creator@vybe.social",
-    username: "alex_rivers",
-    displayName: "Alex Rivers 🎬",
-    passwordHash: DEMO_PASSWORD_HASH,
-    avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    coverImageUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
-    bio: "Filmmaker & Colorist. Obsessed with anamorphic flares & moody night photography. Sony FX3 shooter.",
-    location: "Tokyo / Los Angeles",
-    website: "https://vybe.social/alex_rivers",
-    interests: ["Video Editing", "Photography", "Movies", "Technology"],
-    followersCount: 14280,
-    followingCount: 382,
-    postsCount: 148,
-    isCreator: true,
-    creatorStatus: "pro",
-    verified: true,
-    createdAt: new Date("2026-01-15").toISOString(),
-  },
-  {
-    id: "usr_coder_02",
-    email: "coder@vybe.social",
-    username: "maya_dev",
-    displayName: "Maya Patel ⚡",
-    passwordHash: DEMO_PASSWORD_HASH,
-    avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
-    coverImageUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200&auto=format&fit=crop&q=80",
-    bio: "Building autonomous agentic workflows & generative UI. Open source enthusiast. CS @ Stanford.",
-    location: "San Francisco, CA",
-    website: "https://github.com/maya-dev",
-    interests: ["Coding", "AI", "Technology", "Study"],
-    followersCount: 8940,
-    followingCount: 215,
-    postsCount: 92,
-    isCreator: true,
-    creatorStatus: "rising",
-    verified: true,
-    createdAt: new Date("2026-02-10").toISOString(),
-  },
-  {
-    id: "usr_photog_03",
-    email: "kenji@vybe.social",
-    username: "kenji_shoots",
-    displayName: "Kenji Sato 📸",
-    passwordHash: DEMO_PASSWORD_HASH,
-    avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-    coverImageUrl: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1200&auto=format&fit=crop&q=80",
-    bio: "Tokyo Street & Neon Photographer. Leica M11 & 35mm Summilux.",
-    location: "Tokyo, Japan",
-    website: "https://kenjisato.photo",
-    interests: ["Photography", "Travel", "Art"],
-    followersCount: 22400,
-    followingCount: 410,
-    postsCount: 310,
-    isCreator: true,
-    creatorStatus: "partner",
-    verified: true,
-    createdAt: new Date("2026-01-20").toISOString(),
-  },
-];
+const defaultUsers: UserRecord[] = [];
 
-// Initialize users
+// Initialize users (starts empty for fresh deployment)
 defaultUsers.forEach((u) => usersStore.set(u.id, u));
 
-// Initial seed posts
-const defaultPosts: PostRecord[] = [
-  {
-    id: "post_seed_1",
-    authorId: "usr_creator_01",
-    author: {
-      id: "usr_creator_01",
-      username: "alex_rivers",
-      displayName: "Alex Rivers 🎬",
-      avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-      isCreator: true,
-      creatorStatus: "pro",
-      verified: true,
-    },
-    communityName: "🎬 Video Editing",
-    content:
-      "Just finished color grading the nocturnal sequence in DaVinci Resolve Studio 19. Applied a custom split-toning curve with cyan highlights and warm cadmium undertones. Feedback welcomed! Let me know if you want the PowerGrade download link in the comments.",
-    mediaUrls: [
-      "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1000&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=1000&auto=format&fit=crop&q=80",
-    ],
-    mediaType: "CAROUSEL",
-    hashtags: ["#DaVinciResolve", "#Cinematography", "#ColorGrading", "#Filmmaking"],
-    likesCount: 342,
-    commentsCount: 3,
-    sharesCount: 19,
-    createdAt: new Date(Date.now() - 1000 * 60 * 35).toISOString(), // 35m ago
-  },
-  {
-    id: "post_seed_2",
-    authorId: "usr_coder_02",
-    author: {
-      id: "usr_coder_02",
-      username: "maya_dev",
-      displayName: "Maya Patel ⚡",
-      avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
-      isCreator: true,
-      creatorStatus: "rising",
-      verified: true,
-    },
-    communityName: "💻 Coding",
-    content:
-      "Question for developers building AI native platforms: Which state management & real-time architecture gives you the lowest latency in React 19 / Next.js 16? Vote in the poll below 👇",
-    mediaUrls: [],
-    mediaType: "POLL",
-    poll: {
-      question: "Preferred State & Realtime Stack for AI Social Apps?",
-      options: [
-        { id: "opt_1", text: "React Server Actions + useOptimistic", votesCount: 142, voterIds: [] },
-        { id: "opt_2", text: "Zustand + Raw WebSockets", votesCount: 284, voterIds: ["usr_creator_01"] },
-        { id: "opt_3", text: "Socket.io + Redis Pub/Sub", votesCount: 95, voterIds: [] },
-        { id: "opt_4", text: "TanStack Query + SSE Streams", votesCount: 167, voterIds: [] },
-      ],
-      totalVotes: 688,
-    },
-    hashtags: ["#WebDev", "#TypeScript", "#Architecture", "#NextJS16"],
-    likesCount: 512,
-    commentsCount: 2,
-    sharesCount: 64,
-    createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(), // 2h ago
-  },
-  {
-    id: "post_seed_3",
-    authorId: "usr_photog_03",
-    author: {
-      id: "usr_photog_03",
-      username: "kenji_shoots",
-      displayName: "Kenji Sato 📸",
-      avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-      isCreator: true,
-      creatorStatus: "partner",
-      verified: true,
-    },
-    communityName: "📸 Photography",
-    content:
-      "Rain soaked reflections in Shibuya at 2:00 AM. 35mm f/1.4 wide open on Leica M11. There is something mesmerizing about neon refraction on wet asphalt.",
-    mediaUrls: [
-      "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1000&auto=format&fit=crop&q=80",
-    ],
-    mediaType: "IMAGE",
-    hashtags: ["#Tokyo", "#StreetPhotography", "#Leica", "#RainyNight"],
-    likesCount: 1289,
-    commentsCount: 1,
-    sharesCount: 110,
-    createdAt: new Date(Date.now() - 1000 * 60 * 240).toISOString(), // 4h ago
-  },
-  {
-    id: "post_seed_4",
-    authorId: "usr_creator_01",
-    author: {
-      id: "usr_creator_01",
-      username: "alex_rivers",
-      displayName: "Alex Rivers 🎬",
-      avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-      isCreator: true,
-      creatorStatus: "pro",
-      verified: true,
-    },
-    communityName: "🤖 AI",
-    content:
-      "Ask VYBE Community: Has anyone integrated generative AI tools into their video editing workflow for automatic B-roll sequencing? What are the biggest bottlenecks you encountered?",
-    mediaUrls: [],
-    mediaType: "QUESTION",
-    questionPrompt: "What is your biggest friction with AI-assisted video editing?",
-    hashtags: ["#AIVideo", "#CreatorTools", "#Workflow"],
-    likesCount: 204,
-    commentsCount: 2,
-    sharesCount: 14,
-    createdAt: new Date(Date.now() - 1000 * 60 * 360).toISOString(),
-  },
-];
-
-// Initialize posts
+// Initial posts and comments (starts completely empty for fresh deployment)
+const defaultPosts: PostRecord[] = [];
 defaultPosts.forEach((p) => postsStore.set(p.id, p));
 
-// Seed likes
-likesStore.add("usr_creator_01:post_seed_2");
-likesStore.add("usr_coder_02:post_seed_1");
-likesStore.add("usr_coder_02:post_seed_3");
-
-// Seed saves
-savesStore.add("usr_creator_01:post_seed_2");
-savesStore.add("usr_coder_02:post_seed_1");
-
-// Seed follows
-followsStore.add("usr_creator_01:usr_coder_02"); // Alex follows Maya
-followsStore.add("usr_creator_01:usr_photog_03"); // Alex follows Kenji
-followsStore.add("usr_coder_02:usr_creator_01"); // Maya follows Alex
-followsStore.add("usr_photog_03:usr_creator_01"); // Kenji follows Alex
-
-// Seed comments
-const defaultComments: CommentRecord[] = [
-  {
-    id: "comm_1",
-    postId: "post_seed_1",
-    authorId: "usr_coder_02",
-    content: "The highlight rolloff in that second frame is buttery smooth. Would love to test the PowerGrade with log footage!",
-    parentId: null,
-    likesCount: 14,
-    createdAt: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
-  },
-  {
-    id: "comm_2",
-    postId: "post_seed_1",
-    authorId: "usr_creator_01",
-    content: "Thanks Maya! Dropping a shared link in the Video Editing VYBE resources tab shortly.",
-    parentId: "comm_1",
-    likesCount: 8,
-    createdAt: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
-  },
-  {
-    id: "comm_3",
-    postId: "post_seed_1",
-    authorId: "usr_photog_03",
-    content: "The contrast ratio against the neon signs is spot on. Perfect moody atmospheric vibe.",
-    parentId: null,
-    likesCount: 6,
-    createdAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
-  },
-  {
-    id: "comm_4",
-    postId: "post_seed_2",
-    authorId: "usr_creator_01",
-    content: "Voted Zustand + WebSockets! Lightweight and simple to sync across multi-window video timelines.",
-    parentId: null,
-    likesCount: 9,
-    createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
-  },
-  {
-    id: "comm_5",
-    postId: "post_seed_3",
-    authorId: "usr_creator_01",
-    content: "Incredible depth. That 35mm Summilux rendering is legendary.",
-    parentId: null,
-    likesCount: 22,
-    createdAt: new Date(Date.now() - 1000 * 60 * 150).toISOString(),
-  },
-];
-
+const defaultComments: CommentRecord[] = [];
 defaultComments.forEach((c) => commentsStore.set(c.id, c));
 
 export const db = {
@@ -458,16 +224,32 @@ export const db = {
   },
 
   createUser: async (
-    data: Omit<UserRecord, "id" | "createdAt" | "followersCount" | "followingCount" | "postsCount" | "verified">
+    data: Omit<UserRecord, "id" | "createdAt" | "followersCount" | "followingCount" | "postsCount" | "verified"> & {
+      role?: UserRole;
+      isOwner?: boolean;
+      verified?: boolean;
+    }
   ): Promise<User> => {
+    const isFirstUser = usersStore.size === 0;
+    const isOwner = Boolean(data.isOwner || data.role === "owner" || isFirstUser);
+    const role: UserRole = isOwner ? "owner" : (data.role || (data.isCreator ? "creator" : "user"));
+    const verified = Boolean(data.verified ?? (isOwner || data.isCreator));
+    const creatorStatus = isOwner
+      ? "owner"
+      : (data.creatorStatus || (role === "creator" ? "rising" : "none"));
+
     const id = `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const newUser: UserRecord = {
       ...data,
       id,
+      role,
+      isOwner,
+      isCreator: isOwner || role === "creator" || Boolean(data.isCreator),
+      creatorStatus,
       followersCount: 0,
       followingCount: 0,
       postsCount: 0,
-      verified: false,
+      verified,
       createdAt: new Date().toISOString(),
     };
 
@@ -744,6 +526,8 @@ export const db = {
         username: author.username,
         displayName: author.displayName,
         avatarUrl: author.avatarUrl,
+        role: author.role,
+        isOwner: author.isOwner,
         isCreator: author.isCreator,
         creatorStatus: author.creatorStatus,
         verified: author.verified,

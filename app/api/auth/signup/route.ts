@@ -6,7 +6,7 @@ import { RegisterPayload } from "@/types/auth";
 export async function POST(req: NextRequest) {
   try {
     const body: RegisterPayload = await req.json();
-    const { username, displayName, email, password, interests } = body;
+    const { username, displayName, email, password, role, interests } = body;
 
     // Validation
     if (!username || !displayName || !email || !password) {
@@ -54,6 +54,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Determine account role and permissions
+    const selectedRole = role || "user";
+    const isOwner = selectedRole === "owner";
+    const isCreator = selectedRole === "creator" || isOwner;
+
     // Hash password & create user
     const passwordHash = await hashPassword(password);
     const newUser = await db.createUser({
@@ -61,11 +66,20 @@ export async function POST(req: NextRequest) {
       username: username.toLowerCase(),
       displayName,
       passwordHash,
+      role: selectedRole,
+      isOwner,
+      isCreator,
+      creatorStatus: isOwner ? "owner" : (isCreator ? "rising" : "none"),
+      verified: isOwner || isCreator,
       interests: Array.isArray(interests) && interests.length > 0 ? interests : ["Technology"],
-      isCreator: false,
-      creatorStatus: "none",
-      bio: "Joined the VYBE community! Exploring new horizons.",
-      avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`,
+      bio: isOwner
+        ? "👑 Platform Owner & Founder of VYBE Social."
+        : isCreator
+        ? "✨ Creator on VYBE Social sharing original visuals & projects."
+        : "Joined the VYBE community! Exploring new horizons.",
+      avatarUrl: isOwner
+        ? `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80`
+        : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`,
       coverImageUrl: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&auto=format&fit=crop&q=80",
     });
 
